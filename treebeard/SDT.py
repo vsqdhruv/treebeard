@@ -12,39 +12,36 @@ Modifications for this project: beta clamping,
                                 DeepSet Teacher Distillation functionionality
 """
 
-##SDT.py
-
 import torch
 import torch.nn as nn
-
 
 class SDT(nn.Module):
     """
     Fast implementation of a soft decision tree in PyTorch.
 
     Attributes:
-        input_dim (int): Number of input dimensions.
+        input_dim (int):  Number of input dimensions.
         output_dim (int): Number of output dimensions, e.g., number of classes in classification.
-        depth (int): Depth of the tree, affecting its complexity.
-        lamda (float): Regularization coefficient for the loss function.
-        device (torch.device): Computation device (CPU or GPU).
-        internal_node_num_ (int): Number of internal nodes in the tree.
-        leaf_node_num_ (int): Number of leaf nodes in the tree.
-        penalty_list (List[float]): Coefficients for regularization penalty of nodes at different depths.
+        depth (int):      Depth of the tree
+        lamda (float):    Regularisation coefficient for the loss function.
+        device (torch.device):       Computation device (CPU or GPU).
+        internal_node_num_ (int):    Number of internal nodes 
+        leaf_node_num_ (int):        Number of leaf nodes
+        penalty_list (List[float]):  Regularisation Penalty Coefficients of nodes at different depths.
         inner_nodes (nn.Sequential): Sequential model for internal nodes.
-        leaf_nodes (nn.Linear): Linear layer representing leaf nodes.
+        leaf_nodes (nn.Linear):      Linear layer representing leaf nodes.
     """
 
     def __init__(self, input_dim: int, output_dim: int, depth: int = 5, lamda: float = 1e-3, use_cuda: bool = False):
         """
-        Initializes the Soft Decision Tree model.
+        Initialises the Soft Decision Tree model.
 
         Parameters:
-            input_dim (int): The number of features in the input data.
-            output_dim (int): The number of target outputs or classes.
-            depth (int): The depth of the tree, affecting the number of nodes.
-            lamda (float): Regularization coefficient to control model complexity.
-            use_cuda (bool): Flag to enable CUDA (GPU) computation.
+            input_dim (int):  Number of features in input data.
+            output_dim (int): Number of target outputs or classes.
+            depth (int):      Tree depth, affecting the number of nodes.
+            lamda (float):    Regularisation coefficient.
+            use_cuda (bool):  Flag to enable CUDA (GPU) computation.
         """
         super(SDT, self).__init__()
 
@@ -73,7 +70,7 @@ class SDT(nn.Module):
         Performs a forward pass of the model.
 
         Parameters:
-            X (torch.Tensor): Input data tensor.
+            X (torch.Tensor):        Input data tensor.
             is_training_data (bool): Indicates if the pass is for training.
 
         Returns:
@@ -81,6 +78,8 @@ class SDT(nn.Module):
         """
         _mu, _penalty = self._forward(X)                     # (batch, leaf_node_num)
         leaf_probs = torch.softmax(self.leaf_logits, dim=1)  # per-leaf Q^l, own softmax
+
+        # weighted sum of path probabilities with leaf class distributions
         y_pred = _mu @ leaf_probs
 
         if is_training_data:
@@ -99,15 +98,20 @@ class SDT(nn.Module):
             Tuple[torch.Tensor, torch.Tensor]: Tuple of path probabilities and total penalty.
         """
         batch_size = X.size(0)
-        X = self._data_augment(X)
+        X = self._data_augment(X) # append 1's to input data - bias column
 
-        path_prob = torch.sigmoid(torch.clamp(self.beta, max=5.0) * self.inner_nodes(X))
+        # application of weights and biases to input data, scaled by temperature
+        path_logit = torch.clamp(self.beta, max=5.0) * self.inner_nodes(X) 
+
+        # logit -> probability
+        path_prob = torch.sigmoid(path_logit)
         path_prob = torch.unsqueeze(path_prob, dim=2)
         path_prob = torch.cat((path_prob, 1 - path_prob), dim=2)
 
         _mu = X.data.new(batch_size, 1, 1).fill_(1.0)
         _penalty = torch.tensor(0.0).to(self.device)
 
+        # root -> leaf probability accumulation
         begin_idx = 0
         end_idx = 1
         for layer_idx in range(self.depth):
@@ -209,7 +213,6 @@ class DeepSetsTeacherOld(nn.Module):
 
         return self.rho(pooled)
     
-
 class DeepSetsTeacher(nn.Module):
     def __init__(self, n_features, output_dim):
         super().__init__()
