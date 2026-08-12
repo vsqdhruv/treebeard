@@ -1,6 +1,7 @@
 #!/bin/bash
+cd /eos/user/d/dhnaik/treebeard
 
-nohup python train_sdt.py \
+nohup python -m treebeard.train_sdt \
     --dataset JET_CV2 \
     --data_dir /eos/user/d/dhnaik/C2V_jet_training_data \
     --epochs 120 \
@@ -22,4 +23,4 @@ nohup python train_sdt.py \
     --teacher_lr 7.5e-4 \
     --teacher_lr_step_size 40 \
     --teacher_lr_gamma 0.8 \
-    --temperature 3 > logs/train_log_distilled_deepset_nocw.txt 2>&1 &
+    --temperature 3 > /eos/user/d/dhnaik/treebeard/logs/train_log_distilled_deepset_nocw.txt 2>&1 &

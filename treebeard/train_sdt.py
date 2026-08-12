@@ -9,18 +9,19 @@ Runs inference on quantised test data (dataset.quantise_dataset), compares again
 ## train_sdt.py
 
 import argparse
-from dataset import get_jets, get_events
 import numpy as np
 import os
-from SDT import SDT, DeepSetsTeacher
-from quantSDT import QuantisedSDT
+
+from treebeard.data.dataset import get_jets, get_events
+from treebeard.data.quantisation import quantise_dataset, FIXED_POINT_SPECS
+from treebeard.models.sdt import SDT
+from treebeard.models.deepset import DeepSetsTeacher
+from treebeard.quant.quant_sdt import QuantisedSDT
+
 from sklearn.metrics import roc_auc_score, classification_report, confusion_matrix, accuracy_score
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
-
-from quantSDT import QuantisedSDT
-from dataset import quantise_dataset, FIXED_POINT_SPECS
 
 def unique_path(path):
     """If path exists, append _1, _2, ... before the extension until it doesn't."""

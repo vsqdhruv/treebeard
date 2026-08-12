@@ -9,8 +9,8 @@ Fill in the paths below and run directly:
 
 import numpy as np
 
-from quantSDT import load_sdt_checkpoint, QuantisedSDT, evaluate_against_float
-from dataset import quantise_dataset, FIXED_POINT_SPECS
+from treebeard.quant.quant_sdt import load_sdt_checkpoint, QuantisedSDT, evaluate_against_float
+from treebeard.data.dataset import quantise_dataset, FIXED_POINT_SPECS
 
 PTH_PATH = "/eos/user/d/dhnaik/SDT/path_output/EVENT_C2V/sdt_flat.pth"
 INPUT_DIM = 57      # must match what the checkpoint was trained with

@@ -1,8 +1,10 @@
+## quantSDT.py
+
 import numpy as np
 import torch
 from fxpmath import Fxp
-from SDT import SDT
-from dataset import quantise_fxp
+from treebeard.models.sdt import SDT
+from treebeard.data.quantisation import quantise_fxp
 from sklearn.metrics import roc_auc_score, accuracy_score, confusion_matrix
 
 # quantSDT.py

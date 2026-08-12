@@ -1,7 +1,7 @@
 import torch
 import numpy as np
-from SDT import SDT
-from dataset import get_jets
+from treebeard.models.sdt import SDT
+from treebeard.data.dataset import get_jets
 from sklearn.metrics import roc_auc_score, classification_report, confusion_matrix
 
 input_dim  = 49

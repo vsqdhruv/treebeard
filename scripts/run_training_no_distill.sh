@@ -1,6 +1,7 @@
 #!/bin/bash
+cd /eos/user/d/dhnaik/treebeard
 
-nohup python train_sdt.py \
+nohup python -m treebeard.train_sdt \
     --dataset JET_CV2 \
     --data_dir /eos/user/d/dhnaik/C2V_jet_training_data \
     --epochs 100 \
@@ -16,4 +17,4 @@ nohup python train_sdt.py \
     --save_probs_path sdt_probs_flat \
     --save_preds_path sdt_preds_flat \
     --save_targets_path sdt_targets_flat \
-    --save_num_test_parts sdt_n_test_flat > logs/train_log_flat_plainSDT.txt 2>&1 &
+    --save_num_test_parts sdt_n_test_flat > /eos/user/d/dhnaik/treebeard/logs/train_log_flat_plainSDT.txt 2>&1 &

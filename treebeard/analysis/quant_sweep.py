@@ -8,8 +8,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
  
-from quantSDT import load_sdt_checkpoint, QuantisedSDT, evaluate_against_float
-from dataset import quantise_dataset, FIXED_POINT_SPECS
+from treebeard.quant.quant_sdt import load_sdt_checkpoint, QuantisedSDT, evaluate_against_float
+from treebeard.data.dataset import quantise_dataset, FIXED_POINT_SPECS
 
 ### config ###
 
