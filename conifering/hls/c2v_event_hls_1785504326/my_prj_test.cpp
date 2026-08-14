@@ -27,7 +27,7 @@
 
 #include "firmware/my_prj.h"
 #include "firmware/parameters.h"
-#include "firmware/BDT.h"
+#include "firmware/SDT.h"
 
 #define CHECKPOINT 5000
 
@@ -66,27 +66,33 @@ int main(int argc, char **argv)
       //hls-fpga-machine-learning insert data
       std::vector<double>::const_iterator in_begin = in.cbegin();
       std::vector<double>::const_iterator in_end;
-      input_arr_t x;
-      in_end = in_begin + (57);
-      std::copy(in_begin, in_end, x);
-      in_begin = in_end;
+      pt_arr_t x_pt;
+      eta_arr_t x_eta;
+      phi_arr_t x_phi;
+      for(int k = 0; k < n_objects; k++){
+        x_pt[k] = *(in_begin + 3*k + 0);
+        x_eta[k] = *(in_begin + 3*k + 1);
+        x_phi[k] = *(in_begin + 3*k + 2);
+      }
+      in_begin += 3 * n_objects;
       score_arr_t score{};
-      score_t tree_scores[BDT::fn_classes(n_classes) * n_trees]{};
+      //score_t tree_scores[BDT::fn_classes(n_classes)]{};
       std::fill_n(score, 2, 0.);
 
       //hls-fpga-machine-learning insert top-level-function
-      my_prj(x, score, tree_scores);
+      my_prj(x_pt, x_eta, x_phi, score);
 
       for(int i = 0; i < BDT::fn_classes(n_classes); i++){
         fout << std::fixed << std::setprecision(20) << score[i] << " ";
       }
       fout << std::endl;
-      for(int  i = 0; i < n_trees; i++){
+      
+      /*for(int  i = 0; i < n_trees; i++){
           for(int j = 0; j < BDT::fn_classes(n_classes); j++){
             ftrees << tree_scores[i * BDT::fn_classes(n_classes) + j] << " ";
           }
       }
-      ftrees << std::endl;
+      ftrees << std::endl;*/
 
       if (e % CHECKPOINT == 0) {
         std::cout << "Quantized predictions" << std::endl;
@@ -101,14 +107,18 @@ int main(int argc, char **argv)
   } else {
     std::cout << "INFO: Unable to open input file, using default input." << std::endl;
     //hls-fpga-machine-learning insert zero
-    input_arr_t x;
-    std::fill_n(x, 57, 0.);
+    pt_arr_t x_pt;
+    eta_arr_t x_eta;
+    phi_arr_t x_phi;
+    std::fill_n(x_pt, 19, 0.);
+    std::fill_n(x_eta, 19, 0.);
+    std::fill_n(x_phi, 19, 0.);
     score_arr_t score{};
-    score_t tree_scores[BDT::fn_classes(n_classes) * n_trees]{};
+    //score_t tree_scores[BDT::fn_classes(n_classes)]{};
     std::fill_n(score, 2, 0.);
 
     //hls-fpga-machine-learning insert top-level-function
-    my_prj(x, score, tree_scores);
+    my_prj(x_pt, x_eta, x_phi, score);
 
     //hls-fpga-machine-learning insert output
     for(int i = 0; i < 2; i++) {
