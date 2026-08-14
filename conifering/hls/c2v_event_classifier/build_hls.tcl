@@ -5,7 +5,7 @@ set tcldir [file dirname [info script]]
 source [file join $tcldir hls_parameters.tcl]
 
 array set opt {
-    reset      0
+    reset      1
     csim       1
     synth      1
     cosim      0
@@ -29,8 +29,8 @@ if {$opt(reset)} {
 }
 
 set_top ${top}
-add_files firmware/BDT.h -cflags "-std=c++0x"
-add_files firmware/BDT.cpp -cflags "-std=c++0x"
+add_files firmware/SDT.h -cflags "-std=c++0x"
+add_files firmware/SDT.cpp -cflags "-std=c++0x"
 add_files firmware/${prj_name}.cpp -cflags "-std=c++0x"
 add_files -tb ${prj_name}_test.cpp -cflags "-I firmware/ -std=c++0x"
 add_files -tb tb_data
