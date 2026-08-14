@@ -1,7 +1,7 @@
 ## exporter.py
 
 import numpy as np
-from treebeard.SDT import SDT
+from treebeard.models.sdt import SDT
 import torch
 import os
 
