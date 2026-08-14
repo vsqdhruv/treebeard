@@ -9,7 +9,7 @@ __pycache__/
 *.jou
 *.log
 *.dat
-conifering/hls/*/my_prj/
+conifering/hls/*/my_prj*/
 conifering/hls/*/tb_data/
 conifering/hls/*/*.log
 legacy/
