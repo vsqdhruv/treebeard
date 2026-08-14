@@ -1,13 +1,15 @@
 #ifndef MY_PRJ_H_
 #define MY_PRJ_H_
 
-#include "BDT.h"
-#include "parameters.h"
+#include "SDT.h"
+#include "parameters_depth_2.h"
 
 
 // Prototype of top level function for C-synthesis
 void my_prj(
-	input_arr_t data,
-	score_arr_t score,
-	score_t tree_scores[BDT::fn_classes(n_classes) * n_trees]);
+	pt_arr_t x_pt,
+	eta_arr_t x_eta,
+	phi_arr_t x_phi,
+	score_arr_t score);
+	// score_t tree_scores[BDT::fn_classes(n_classes)]
 #endif
