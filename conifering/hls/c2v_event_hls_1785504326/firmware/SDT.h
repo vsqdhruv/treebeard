@@ -4,6 +4,7 @@
 #define BDT_H__
 
 #include "ap_fixed.h"
+#include "hls_math.h"
 #include <cstring>
 #include <functional>
 
@@ -44,7 +45,7 @@ template <class data_T, class table_t, int table_size, int range>
 void init_sigmoid_table(table_t table_out[table_size]){
   for(int i = 0; i < table_size; i++){
     float in_val = 2.0 * range * (i - float(table_size) / 2.0) / table_size;
-    table_out[i] = 1.0 / (1 + std::exp(-in_val));
+    table_out[i] = 1.0 / (1 + hls::exp(-in_val));
   }
 } 
 
@@ -112,6 +113,15 @@ public:
     #pragma HLS ARRAY_PARTITION variable=path_prob
     #pragma HLS ARRAY_PARTITION variable=path_prob_leaf
 
+    // DIAGNOSTIC ONLY — forces all inputs to have fanout so cosim's post-check
+    // doesn't choke on dangling ports (e.g. x_phi_13 unused at depth=2).
+    // Remove or narrow once confirmed / once testing a deeper tree.
+    /*ap_fixed<32,16> dummy_keepalive = 0;
+    for (int k = 0; k < n_objects; k++) {
+        dummy_keepalive += x_pt[k] + x_eta[k] + x_phi[k];
+    }
+    // harmless: multiply by 0 so it can't affect the real result, but creates a genuine dependency
+    score[0] += dummy_keepalive * score_t(0);*/
 
     // Gate: compute sigmoid(w.x), x[0]=1 so weight[i][0] acts as a bias, beta pre-folded
     Gate: for(int i=0; i < n_nodes; i++){
@@ -120,7 +130,7 @@ public:
       // negative values mean is leaf ?
       if(feature[i] >= 0){
         //logit_t accumulation = bias[i];
-        ap_fixed<24,12> accumulation = bias[i];
+        logit_t accumulation = bias[i];
         for(int k = 0; k < n_objects; k++){
           accumulation += x_pt[k] * weight_pt[i][k]
                         +  x_eta[k] * weight_eta[i][k]
