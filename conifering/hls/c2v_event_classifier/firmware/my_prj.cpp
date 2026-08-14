@@ -1,5 +1,5 @@
 #include "SDT.h"
-#include "parameters_depth_2.h"
+#include "parameters.h"
 #include "my_prj.h"
 #include "hls_stream.h"
 

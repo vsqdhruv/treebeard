@@ -6,7 +6,7 @@
 #include <sstream>
 #include <vector>
 #include "SDT.h"
-#include "parameters_SDT_gen.h"
+#include "parameters.h"
 
 void sdt_predict(pt_t x_pt[n_objects], eta_t x_eta[n_objects], phi_t x_phi[n_objects], score_t score[n_classes]);
 

@@ -2,7 +2,7 @@
 #define MY_PRJ_H_
 
 #include "SDT.h"
-#include "parameters_depth_2.h"
+#include "parameters.h"
 
 
 // Prototype of top level function for C-synthesis

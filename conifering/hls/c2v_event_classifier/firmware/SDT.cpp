@@ -1,7 +1,7 @@
 //SDT.cpp
 
 #include "SDT.h"
-#include "parameters_SDT_gen.h"
+#include "parameters.h"
 
 /*
 bool (*split_fn)(const input_t*, const threshold_t*) = !strcmp(splitting_convention,"<=") ? [](const input_t *a, const threshold_t *b) { return *a <= *b; } : [](const input_t *a, const threshold_t *b) { return *a < *b;};
