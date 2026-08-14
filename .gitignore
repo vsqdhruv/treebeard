@@ -4,6 +4,14 @@ __pycache__/
 *.npy
 *.pth
 *.ckpt
+*.rpt
+*.tar.gz
+*.jou
+*.log
+*.dat
+conifering/hls/*/my_prj/
+conifering/hls/*/tb_data/
+conifering/hls/*/*.log
 legacy/
 logs/
 path_output/
