@@ -1,9 +1,9 @@
 """
-Quantised numpy forward pass for Frosst-Hinton style SDT (SDT.py)
+Quantised numpy forward pass for Frosst-Hinton style SDT (treebeard.models.sdt)
 
 Loads a pre-trained .pth checkpoint, folds beta parameter into weights and biases, quantises with Fxp.fxpmath.
 Goal is to match Vitis HLS ap_fixed/ap_ufixed semantics.   
-Runs inference on quantised test data (dataset.quantise_dataset), compares against float model performance.
+Runs inference on quantised test data (treebeard.dataset.quantise_dataset), compares against float model performance.
 """
 
 ## train_sdt.py
@@ -12,7 +12,7 @@ import argparse
 import numpy as np
 import os
 
-from treebeard.data.dataset import get_jets, get_events
+from treebeard.data.dataset import get_jets, get_events, get_events_from_arrays
 from treebeard.data.quantisation import quantise_dataset, FIXED_POINT_SPECS
 from treebeard.models.sdt import SDT
 from treebeard.models.deepset import DeepSetsTeacher
@@ -52,13 +52,28 @@ def train_and_evaluate(args):
 
     elif args.dataset == 'EVENT_C2V':
         args.output_dim = 2
-
         loaders = get_events(data_dir=args.data_dir, batch_size=args.batch_size, distill=args.distill)
-
         n_train, n_val, n_test = None, None, None
 
-        train_loader, val_loader, test_loader = loaders['flat']
+        if args.X_train_override is not None:
+            assert args.y_train_override is not None, "Must supply both --X_train_override and --y_train_override"
 
+            X_tr_override = np.load(args.X_train_override)
+            y_tr_override = np.load(args.y_train_override)
+
+            _, val_loader, test_loader = loaders['flat']
+            X_val = val_loader.dataset.X.numpy()
+            y_val = val_loader.dataset.y.argmax(dim=1).numpy()
+            X_test = test_loader.dataset.X.numpy()
+            y_test = test_loader.dataset.y.argmax(dim=1).numpy()
+            all_columns = loaders.get('all_columns') 
+
+            loaders = get_events_from_arrays(
+                X_tr_override, y_tr_override, X_val, y_val, X_test, y_test,
+                output_dims=args.output_dim, batch_size=args.batch_size, distill=args.distill,
+                all_columns=all_columns)
+
+        train_loader, val_loader, test_loader = loaders['flat']
         args.input_dim = train_loader.dataset.X.shape[1]
 
     if args.distill:
@@ -272,13 +287,13 @@ def train_and_evaluate(args):
     print(cm_stu)
     print(classification_report(all_targets, all_preds, zero_division=0))
 
-    path_output_dir = os.path.join('/eos/user/d/dhnaik/SDT/path_output', args.dataset)
+    path_output_dir = os.path.join('/eos/user/d/dhnaik/treebeard/path_output/final', args.dataset)
     os.makedirs(path_output_dir, exist_ok=True)
  
     model_save_path = unique_path(os.path.join(path_output_dir, args.save_model_path))
     torch.save(tree.state_dict(), model_save_path)
  
-    test_outputs_dir = os.path.join('/eos/user/d/dhnaik/SDT/test_outputs', args.dataset)
+    test_outputs_dir = os.path.join('/eos/user/d/dhnaik/treebeard/test_outputs/final', args.dataset)
     os.makedirs(test_outputs_dir, exist_ok=True)
 
     if args.quantise:
@@ -342,6 +357,10 @@ if __name__ == "__main__":
                         help='Directory for storing input data')
     parser.add_argument('--dataset', type=str, choices=[
                         'JET_C2V', 'EVENT_C2V'], default='JET_C2V', help='Dataset to use.')
+    parser.add_argument('--X_train_override', type=str, default=None,
+                        help='Path to X_train .npy to use instead of the cached split.')
+    parser.add_argument('--y_train_override', type=str, default=None,
+                        help='Path to y_train .npy to use instead of the cached split.')
     parser.add_argument('--feature_idx', type=int, default=0,
                         help='Feature index for CelebA dataset')
     
