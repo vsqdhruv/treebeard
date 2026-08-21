@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-class DeepSetsTeacherOld(nn.Module):
+class DeepSetsTeacher(nn.Module):
     def __init__(self, n_features, output_dim):
         super().__init__()
         self.phi = nn.Sequential(
@@ -31,7 +31,7 @@ class DeepSetsTeacherOld(nn.Module):
 
         return self.rho(pooled)
     
-class DeepSetsTeacher(nn.Module):
+class DeepSetsTeacherMask(nn.Module):
     def __init__(self, n_features, output_dim):
         super().__init__()
         self.phi = nn.Sequential(
