@@ -277,3 +277,16 @@ def get_events(
             'raw': loaders,
             'all_columns': all_columns}
 
+def get_events_from_arrays(X_train, y_train, X_val, y_val, X_test, y_test,
+                            output_dims, batch_size, distill=False, all_columns=None):
+    """
+    Build loaders directly from arrays you supply. Use this for bootstrap/subsample 
+    variance reps, or any time you want to hand the model a specific dataset rather 
+    than have get_events generate/cache one itself.
+    """
+    loaders = make_dataloader(X_train, X_val, X_test,
+                               y_train, y_val, y_test,
+                               output_dims=output_dims, batch_size=batch_size, distill=distill)
+    print(f"Loaded events (from arrays) — Train: {len(X_train)}, Val: {len(X_val)}, Test: {len(X_test)}")
+    return {'flat': loaders, 'raw': loaders, 'all_columns': all_columns}
+
